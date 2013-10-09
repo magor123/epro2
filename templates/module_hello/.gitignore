@@ -1,0 +1,9 @@
+# ignore all compiled files
+
+*
+
+# with the exception of the source code
+
+!hello.c
+!Makefile
+!.gitignore
