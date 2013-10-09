@@ -4,6 +4,6 @@
 
 # with the exception of the source code
 
-!hello.c
+!echobox.c
 !Makefile
 !.gitignore
