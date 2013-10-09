@@ -1,0 +1,10 @@
+# ignore all compiled files
+
+*
+
+# with the exception of the source code
+
+!echobox.c
+!Makefile
+!init_echobox.sh
+!.gitignore
