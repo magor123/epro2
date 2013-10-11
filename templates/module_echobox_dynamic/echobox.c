@@ -16,7 +16,7 @@
 #include <linux/cdev.h>		// VFS registration: cdev_init() and cdev_add()
 #include <linux/uaccess.h>	// copy_to_user() and read_from_user()
 
-#define MSG_SIZE 100		// my buffer size
+#define MSG_SIZE 5		// my buffer size
  
 static dev_t devnum; 		// my dynamically allocated device number <Major,Minor>
 static struct cdev mydev;	// character device structure
@@ -67,18 +67,26 @@ static ssize_t echobox_read(struct file *f, char __user *buf, size_t len, loff_t
  */
 static ssize_t echobox_write(struct file *f, const char __user *buf, size_t len, loff_t *off)
 {
-	// no more space left to write in my buffer
-	if (*off >= MSG_SIZE) return 0;
+	// no more space left to write in my buffer (returns: "No space left on device" error)
+	// this check is meaningful only starting from the second iteration of the write function
+	if (*off >= MSG_SIZE) return -ENOSPC;
 	
-	// prevent overflow writing in my buffer
+	// prevent overflow when writing in my buffer:
+	// if the lenght of the message the user wants to write in my driver exceeds my buffer lenght
+	// then I decrease the lenght of the message (LEN) to be stored in my buffer
+	// * at the first iteration, the message length is pushed down to the size of my buffer (offest=0)
+	// * for all the other iterations, when we are running out of space the lenght of the data chunk the user 
+	//   wants to write in the driver is downsized to the free space left [buffer_size - buffer_used(offset)]
 	if (*off + len > MSG_SIZE) { len = MSG_SIZE - *off; }
 	
-	// write LEN bytes in my buffer
+	// extract a chunk of data (of LEN bytes) from the user buffer and store it in my buffer at position OFFSET
 	if ( copy_from_user(&msg + *off, buf, len) != 0 ) { return -EFAULT; }
 
-	// increment offset
+	// increment offset, the placeholder inside my buffer
 	*off += len;
 
+	// return the number of bytes I was able to write in my driver buffer
+	// a new iteration of this function is expected if there is still user data pending to be store in the driver
 	return len;
 }
 
