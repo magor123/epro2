@@ -2,7 +2,7 @@ obj-m += echobox.o
 
 CROSS = arm-linux-gnueabi-
 
-KDIR = /home/matija/Faks/DES/kernel/kernel
+KDIR = ~/SDU/EPRO2/source/kernel/kernel
 
 PWD := $(shell pwd)
 
