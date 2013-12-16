@@ -13,8 +13,20 @@
 #include <arpa/inet.h>
 
 float t=0;
-void  read_temperature();
+FILE* file;
+int temperature;
 
+void read_temperature() {
+
+		system("i2cget -f -y 1 0x48 0x00 > temperature");
+		file = fopen("/home/root/temperature", "r");
+        	if (file != NULL) {
+			fscanf(file, "%x", &temperature);
+			fclose(file);
+		}
+		else
+			printf("ERROR reading temperature file");
+}
 
 int main(int argc, char *argv[])
 {
@@ -78,15 +90,4 @@ int main(int argc, char *argv[])
 	}
 	
 	return 0;
-}
-
-
-
-void read_temperature() {
-
-	// Read temperature from temperature sensor
-
-	t=24.6;
-
-}
-	
+}	
